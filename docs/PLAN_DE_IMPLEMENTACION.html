@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Implementación - StudyBuddy</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px 30px;
+            background-color: #f5f6fa;
+            color: #2c3e50;
+        }
+        h1 {
+            color: #4F46E5;
+            border-bottom: 3px solid #4F46E5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #1F2937;
+            border-bottom: 2px solid #4F46E5;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #4F46E5;
+            margin-top: 24px;
+        }
+        h4 {
+            color: #6B7280;
+            margin-top: 16px;
+            font-size: 0.95em;
+        }
+        .phase {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #4F46E5;
+        }
+        .phase-new {
+            border-left-color: #10B981;
+        }
+        .phase-critical {
+            border-left-color: #EF4444;
+        }
+        ol, ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        code {
+            background-color: #EEF2FF;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Courier New", monospace;
+            font-size: 0.9em;
+            color: #4F46E5;
+        }
+        pre {
+            background-color: #1F2937;
+            color: #E5E7EB;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        .header-note {
+            background-color: #EEF2FF;
+            border-left: 4px solid #4F46E5;
+            padding: 15px 20px;
+            margin-bottom: 24px;
+            border-radius: 0 8px 8px 0;
+        }
+        .badge-new {
+            display: inline-block;
+            background: #10B981;
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            vertical-align: middle;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        .badge-improved {
+            display: inline-block;
+            background: #F59E0B;
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            vertical-align: middle;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        .badge-critical {
+            display: inline-block;
+            background: #EF4444;
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            vertical-align: middle;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+        .warning-box {
+            background-color: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            padding: 15px 20px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .danger-box {
+            background-color: #FEE2E2;
+            border-left: 4px solid #EF4444;
+            padding: 15px 20px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .success-box {
+            background-color: #D1FAE5;
+            border-left: 4px solid #10B981;
+            padding: 15px 20px;
+            margin: 16px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        th, td {
+            border: 1px solid #E5E7EB;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        th {
+            background-color: #EEF2FF;
+            color: #4F46E5;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #F9FAFB;
+        }
+    </style>
+</head>
+<body>
+    <h1>📖 Plan de Implementación Detallado — StudyBuddy</h1>
+    
+    <div class="header-note">
+        <p><strong>Documento:</strong> Plan de implementación completo para la aplicación StudyBuddy, basado en el análisis exhaustivo del archivo <code>studybuddy.html</code>.</p>
+        <p><strong>Objetivo:</strong> Construir una aplicación web educativa que permita a estudiantes (6-15 años) fotografiar material escolar y generar resúmenes, quizzes, flashcards y mapas conceptuales usando IA (Google Gemini).</p>
+        <p><strong>Arquitectura:</strong> SPA (Single Page Application) sin dependencias externas, frontend-only con API de Gemini directa.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase">
+        <h2>1. Estructura del Proyecto y Configuración Inicial</h2>
+        
+        <h3>1.1. Análisis del Código Existente</h3>
+        <ul>
+            <li>El archivo <code>studybuddy.html</code> contiene toda la aplicación en un único archivo (HTML + CSS + JS)</li>
+            <li>Utiliza HTML5, CSS3 y JavaScript ES6+ sin dependencias externas ni bundlers</li>
+            <li>Implementa una arquitectura de pestañas para navegación entre 4 secciones: Inicio, Generar, Practicar, Historial</li>
+            <li>Usa <code>localStorage</code> para persistencia de datos (configuración e historial)</li>
+            <li>Estado global manejado en un objeto <code>state</code> con: images, config, currentQuiz, quizIndex, quizScore, quizAnswered, history, genTypes</li>
+        </ul>
+        
+        <h3>1.2. Tecnologías Identificadas</h3>
+        <table>
+            <tr><th>Categoría</th><th>Tecnología</th><th>Uso</th></tr>
+            <tr><td>Estructura</td><td>HTML5</td><td>Markup semántico con <code>role="tablist"</code></td></tr>
+            <tr><td>Estilos</td><td>CSS3 con Variables CSS</td><td>Sistema de diseño con tokens en <code>:root</code></td></tr>
+            <tr><td>Lógica</td><td>JavaScript ES6+</td><td>Async/await, template literals, Set, destructuring</td></tr>
+            <tr><td>Tipografías</td><td>Google Fonts</td><td>Nunito (cuerpo) y Sora (títulos)</td></tr>
+            <tr><td>IA</td><td>Google Gemini API v1beta</td><td>Modelo <code>gemini-1.5-flash</code> con visión</td></tr>
+            <tr><td>APIs del navegador</td><td>localStorage</td><td>Persistencia de config e historial</td></tr>
+            <tr><td></td><td>MediaDevices API</td><td>Acceso a cámara del dispositivo</td></tr>
+            <tr><td></td><td>FileReader API</td><td>Lectura de archivos como base64/dataURL</td></tr>
+            <tr><td></td><td>Canvas API</td><td>Captura de frames del video de cámara</td></tr>
+            <tr><td></td><td>Clipboard API</td><td>Copiar texto al portapapeles</td></tr>
+            <tr><td></td><td>Drag & Drop API</td><td>Arrastrar imágenes a la zona de upload</td></tr>
+        </table>
+
+        <h3>1.3. Decisión de Arquitectura <span class="badge-new">NUEVO</span></h3>
+        <p>La aplicación se mantendrá como un <strong>archivo único HTML</strong> (single-file SPA) por las siguientes razones:</p>
+        <ul>
+            <li>El público objetivo (padres/tutores) necesita máxima simplicidad de despliegue</li>
+            <li>Se puede abrir directamente desde el sistema de archivos sin servidor</li>
+            <li>Sin dependencias de build tools, npm, ni bundlers</li>
+            <li>El CSS y JS están embebidos para facilitar distribución</li>
+        </ul>
+        <div class="warning-box">
+            <strong>⚠️ Consideración futura:</strong> Si la aplicación crece significativamente, evaluar migración a Vite con módulos ES separados (CSS, JS por componente).
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase">
+        <h2>2. Requisitos Funcionales por Categoría</h2>
+        
+        <h3>2.1. Gestión de Configuración</h3>
+        <ul>
+            <li>Configuración de nombre del estudiante (input text, placeholder: "Sofía")</li>
+            <li>Selección de grado/nivel educativo con 3 opciones:
+                <ul>
+                    <li><code>primaria_baja</code>: 1°-3° Primaria (6-9 años)</li>
+                    <li><code>primaria_alta</code>: 4°-6° Primaria (9-12 años) — default</li>
+                    <li><code>secundaria</code>: Secundaria (12-15 años)</li>
+                </ul>
+            </li>
+            <li>Configuración de API Key de Gemini con campo tipo <code>password</code> y toggle de visibilidad (👁)</li>
+            <li>Enlace directo a <a href="https://aistudio.google.com/apikey">Google AI Studio</a> para obtener key</li>
+            <li>Persistencia en <code>localStorage</code> bajo la clave <code>sb_config</code> (JSON: {name, grade, apiKey})</li>
+            <li>Mensaje informativo: "Tu API Key se guarda solo en tu navegador. Nunca se envía a ningún servidor nuestro."</li>
+        </ul>
+        
+        <h3>2.2. Captura y Gestión de Imágenes <span class="badge-improved">MEJORADO</span></h3>
+        <ul>
+            <li><strong>Subida desde archivos:</strong> Input tipo <code>file</code> con atributo <code>accept="image/*"</code> y <code>multiple</code></li>
+            <li><strong>Drag & Drop:</strong>
+                <ul>
+                    <li>Zona de drop con handlers: <code>ondrop</code>, <code>ondragover</code>, <code>ondragleave</code></li>
+                    <li>Feedback visual con clase <code>.drag-over</code> que cambia borde y fondo</li>
+                    <li>Filtro de archivos dropeados: solo <code>file.type.startsWith('image/')</code></li>
+                </ul>
+            </li>
+            <li><strong>Cámara del dispositivo:</strong>
+                <ul>
+                    <li>Acceso via <code>navigator.mediaDevices.getUserMedia</code> con <code>facingMode: 'environment'</code></li>
+                    <li>Stream de video en elemento <code>&lt;video&gt;</code> con <code>autoplay playsinline</code></li>
+                    <li>Captura de foto: dibujar frame en <code>&lt;canvas&gt;</code> y convertir a JPEG 92% calidad</li>
+                    <li>Cierre de cámara con stop de tracks del stream</li>
+                </ul>
+            </li>
+            <li><strong>Vista previa:</strong>
+                <ul>
+                    <li>Grid responsivo con <code>grid-template-columns: repeat(auto-fill, minmax(110px, 1fr))</code></li>
+                    <li>Cada imagen muestra: preview, botón eliminar (✕), número de página</li>
+                    <li>Almacenamiento en <code>state.images[]</code> como objetos <code>{ file, dataUrl, base64, mimeType }</code></li>
+                </ul>
+            </li>
+            <li>Formatos soportados: JPG, PNG, WEBP</li>
+        </ul>
+        
+        <h3>2.3. Generación de Contenido con IA <span class="badge-improved">MEJORADO</span></h3>
+        <ul>
+            <li><strong>Selección múltiple de tipos:</strong> Sistema de pills con <code>Set</code> para seleccionar tipos de generación. Mínimo 1 tipo debe estar seleccionado. Tipos disponibles:
+                <ul>
+                    <li>📝 Resumen (HTML con h2, h3, p, ul, strong)</li>
+                    <li>❓ Quiz (10 preguntas de opción múltiple)</li>
+                    <li>🗂️ Flashcards (mínimo 8 tarjetas)</li>
+                    <li>🧠 Mapa conceptual (HTML con divs anidados y estilos inline)</li>
+                </ul>
+            </li>
+            <li>Personalización por materia y tema específico</li>
+            <li>Campo opcional de notas adicionales del tutor/estudiante</li>
+            <li>Indicador de progreso con barra animada y mensajes de estado</li>
+        </ul>
+
+        <h3>2.4. Especificación Técnica de la API de Gemini <span class="badge-new">NUEVO</span></h3>
+        
+        <h4>Endpoint</h4>
+        <pre><code>POST https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}</code></pre>
+
+        <h4>Estructura del Request Body</h4>
+        <pre><code>{
+  "contents": [{
+    "parts": [
+      // Imágenes como inline_data
+      { "inline_data": { "mime_type": "image/jpeg", "data": "{base64_string}" } },
+      // ... más imágenes ...
+      // Texto del prompt como último part
+      { "text": "{instrucciones_del_prompt}" }
+    ]
+  }],
+  "generationConfig": {
+    "temperature": 0.7,
+    "maxOutputTokens": 8000
+  }
+}</code></pre>
+
+        <h4>Estructura de Respuesta Esperada</h4>
+        <pre><code>// La API devuelve:
+data.candidates[0].content.parts[0].text → string con JSON
+
+// El JSON parseado debe tener esta estructura:
+{
+  "titulo": "Título del tema detectado",
+  "resumen": "HTML string (si fue solicitado)",
+  "quiz": [
+    {
+      "pregunta": "...",
+      "opciones": ["A)...", "B)...", "C)...", "D)..."],
+      "respuesta_correcta": 0,  // índice 0-3
+      "explicacion": "..."
+    }
+  ],
+  "flashcards": [
+    { "frente": "Término", "reverso": "Definición" }
+  ],
+  "mapa_conceptual": "HTML string"
+}</code></pre>
+
+        <h4>Post-procesamiento de la respuesta</h4>
+        <ul>
+            <li>Eliminar markdown fences: <code>rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()</code></li>
+            <li>Parsear JSON con try/catch y mensaje amigable si falla</li>
+        </ul>
+
+        <h3>2.5. Prompt Engineering <span class="badge-new">NUEVO</span></h3>
+        <p>El prompt se construye dinámicamente con las siguientes variables:</p>
+        <ul>
+            <li><strong>Nombre del estudiante:</strong> personaliza las respuestas ("para {nombre}")</li>
+            <li><strong>Nivel educativo:</strong> mapeado via <code>gradeMap</code>:
+                <table>
+                    <tr><th>Clave</th><th>Descripción enviada a IA</th></tr>
+                    <tr><td><code>primaria_baja</code></td><td>"niño de 6 a 9 años, 1°-3° primaria"</td></tr>
+                    <tr><td><code>primaria_alta</code></td><td>"niño de 9 a 12 años, 4°-6° primaria"</td></tr>
+                    <tr><td><code>secundaria</code></td><td>"adolescente de 12 a 15 años, secundaria"</td></tr>
+                </table>
+            </li>
+            <li><strong>Materia y tema:</strong> contextualizan el análisis</li>
+            <li><strong>Notas del tutor:</strong> instrucciones adicionales opcionales</li>
+            <li><strong>Formato de salida:</strong> JSON puro sin markdown, con estructura específica según tipos seleccionados</li>
+            <li><strong>Idioma:</strong> "Responde SIEMPRE en español"</li>
+        </ul>
+
+        <h3>2.6. Sistema de Evaluación (Quiz)</h3>
+        <ul>
+            <li>Cuestionarios interactivos con 4 opciones múltiples (A, B, C, D)</li>
+            <li>Retroalimentación inmediata:
+                <ul>
+                    <li>Correcta: fondo verde + explicación</li>
+                    <li>Incorrecta: opción marcada en rojo + correcta en verde + explicación</li>
+                </ul>
+            </li>
+            <li>Barra de progreso visual por pregunta</li>
+            <li>Contador de respuestas correctas en tiempo real</li>
+            <li>Opciones se deshabilitan tras responder (<code>.disabled</code>)</li>
+            <li>Vista de resultados finales con:
+                <ul>
+                    <li>Círculo de puntaje con sombra</li>
+                    <li>Emoji contextual: 🏆 ≥90%, 🌟 ≥70%, 👍 ≥50%, 💪 <50%</li>
+                    <li>Mensaje motivacional adaptado al porcentaje</li>
+                    <li>Opciones: "Volver a intentar" y "Ver material"</li>
+                </ul>
+            </li>
+        </ul>
+        
+        <h3>2.7. Historial de Sesiones</h3>
+        <ul>
+            <li>Almacenamiento en <code>localStorage</code> bajo clave <code>sb_history</code></li>
+            <li>Cada entrada contiene: <code>{ id, titulo, date, types, data }</code></li>
+            <li><strong>Límite de 30 entradas</strong> (FIFO: la más antigua se elimina)</li>
+            <li>Formato de fecha: <code>toLocaleDateString('es-CR', { day: '2-digit', month: 'short', year: 'numeric' })</code></li>
+            <li>Cargar sesión del historial re-renderiza los resultados y recarga el quiz si existe</li>
+            <li>Estado vacío con mensaje e icono cuando no hay historial</li>
+        </ul>
+        
+        <h3>2.8. Interfaz de Usuario</h3>
+        <ul>
+            <li>Sistema de pestañas (Inicio, Generar, Practicar, Historial) con emojis</li>
+            <li>Diseño responsive con breakpoint en 600px:
+                <ul>
+                    <li>Form rows pasan de 2 columnas a 1</li>
+                    <li>Tabs reducen tamaño de fuente</li>
+                    <li>Emojis de tabs se ocultan en móvil</li>
+                </ul>
+            </li>
+            <li>Header sticky con logo y badge "✨ Con IA"</li>
+            <li>Contenedor con max-width 860px centrado</li>
+            <li>Animaciones <code>fadeUp</code> en elementos que aparecen</li>
+        </ul>
+
+        <h3>2.9. Sistema de Notificaciones Toast <span class="badge-new">NUEVO</span></h3>
+        <ul>
+            <li>Elemento <code>#sb-toast</code> creado dinámicamente al primer uso</li>
+            <li>Posición: fixed, bottom 24px, centrado horizontalmente</li>
+            <li>Estilo: fondo oscuro (#1F2937), texto blanco, border-radius 20px</li>
+            <li>Auto-ocultamiento: fade-out a los 2800ms</li>
+            <li>Cancelación de toast previo si se muestra otro nuevo</li>
+            <li>Usado para: confirmaciones (✅), advertencias (⚠️), errores (❌), cámara (📸), copiado (📋)</li>
+        </ul>
+        
+        <h3>2.10. Funciones Adicionales</h3>
+        <ul>
+            <li><strong>Copiar texto:</strong> <code>navigator.clipboard.writeText()</code> con feedback toast</li>
+            <li><strong>Flashcards interactivas:</strong> Click para flip (frente/reverso) con cambio de fondo</li>
+            <li><strong>Impresión:</strong> Abre ventana nueva con estilos simplificados y ejecuta <code>window.print()</code></li>
+            <li><strong>Escape de HTML:</strong> Función <code>escHtml()</code> para prevenir XSS en contenido dinámico</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase">
+        <h2>3. Plan de Implementación Paso a Paso</h2>
+        
+        <h3>Fase 1: Estructura Base y Configuración</h3>
+        <ol>
+            <li>Crear el archivo HTML base con la estructura del documento, meta tags y carga de Google Fonts (Nunito + Sora)</li>
+            <li>Implementar el sistema de diseño CSS:
+                <ul>
+                    <li>Variables CSS en <code>:root</code> (colores, radios, sombras)</li>
+                    <li>Reset de estilos (<code>box-sizing: border-box</code>)</li>
+                    <li>Componentes reutilizables: .card, .btn, .form-control, .alert, .chip</li>
+                </ul>
+            </li>
+            <li>Implementar el header sticky con logo y badge</li>
+            <li>Crear el sistema de pestañas con función <code>showTab()</code>:
+                <ul>
+                    <li>4 secciones: inicio, generar, quiz, historial</li>
+                    <li>Toggle de clases <code>.active</code> en tabs y secciones</li>
+                </ul>
+            </li>
+            <li>Desarrollar la sección de configuración (nombre, grado, API Key)</li>
+            <li>Implementar persistencia con <code>localStorage</code>:
+                <ul>
+                    <li>Guardar: <code>localStorage.setItem('sb_config', JSON.stringify(...))</code></li>
+                    <li>Cargar al inicio: <code>JSON.parse(localStorage.getItem('sb_config'))</code></li>
+                </ul>
+            </li>
+            <li>Crear la tarjeta de bienvenida con gradiente y CTA "Empezar ahora"</li>
+            <li>Crear la sección "¿Cómo funciona?" con los 3 pasos visuales</li>
+        </ol>
+        
+        <h3>Fase 2: Captura y Gestión de Imágenes <span class="badge-improved">MEJORADO</span></h3>
+        <ol>
+            <li>Implementar subida de archivos:
+                <ul>
+                    <li>Input <code>type="file"</code> con <code>accept="image/*"</code> y <code>multiple</code></li>
+                    <li>Lectura con <code>FileReader.readAsDataURL()</code></li>
+                    <li>Almacenar en <code>state.images[]</code> como <code>{ file, dataUrl, base64, mimeType }</code></li>
+                </ul>
+            </li>
+            <li>Implementar Drag & Drop:
+                <ul>
+                    <li>Zona de drop con clase <code>.upload-area</code></li>
+                    <li>Handlers: <code>handleDrop</code> (preventDefault + filtrar por image/*), <code>handleDragOver</code> (addClass drag-over), <code>handleDragLeave</code> (removeClass)</li>
+                    <li>Feedback visual: borde cambia a color primary y fondo a primary-light</li>
+                </ul>
+            </li>
+            <li>Desarrollar integración con cámara:
+                <ul>
+                    <li><code>getUserMedia({ video: { facingMode: 'environment' }, audio: false })</code></li>
+                    <li>Mostrar video en <code>#cameraVideo</code> con <code>srcObject = stream</code></li>
+                    <li>Captura: <code>canvas.getContext('2d').drawImage(video, 0, 0)</code> → <code>canvas.toDataURL('image/jpeg', 0.92)</code></li>
+                    <li>Cierre: <code>stream.getTracks().forEach(t => t.stop())</code></li>
+                    <li>Manejo de error: toast con sugerencia de usar "Subir imágenes"</li>
+                </ul>
+            </li>
+            <li>Crear grid de vista previa con <code>renderPreviews()</code>:
+                <ul>
+                    <li>Grid responsivo CSS</li>
+                    <li>Cada item: imagen, botón eliminar, número de página</li>
+                    <li>Función <code>removeImage(i)</code> con splice y re-render</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>Fase 3: Integración con Google Gemini API <span class="badge-critical">CRÍTICO</span></h3>
+        <ol>
+            <li>Implementar validaciones pre-envío:
+                <ul>
+                    <li>Verificar que existe API Key (del form o de config guardada)</li>
+                    <li>Verificar que hay al menos 1 imagen</li>
+                    <li>Mostrar toast de error si faltan datos</li>
+                </ul>
+            </li>
+            <li>Construir el prompt dinámico:
+                <ul>
+                    <li>Mapear grado a descripción natural con <code>gradeMap</code></li>
+                    <li>Incluir nombre, materia, tema, notas opcionales</li>
+                    <li>Especificar formato JSON según tipos seleccionados</li>
+                    <li>Instrucción explícita: "sin markdown, solo JSON puro"</li>
+                    <li>Instrucción de idioma: "Responde SIEMPRE en español"</li>
+                </ul>
+            </li>
+            <li>Preparar las imágenes como <code>inline_data</code>:
+                <pre><code>state.images.map(img => ({
+  inline_data: {
+    mime_type: img.mimeType,
+    data: img.base64
+  }
+}))</code></pre>
+            </li>
+            <li>Realizar la llamada fetch al endpoint:
+                <pre><code>fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    contents: [{ parts: [...imageParts, { text: instructions }] }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
+  })
+})</code></pre>
+            </li>
+            <li>Procesar la respuesta:
+                <ul>
+                    <li>Verificar <code>res.ok</code>, si no: extraer mensaje de error de <code>err.error?.message</code></li>
+                    <li>Extraer texto: <code>data.candidates?.[0]?.content?.parts?.[0]?.text</code></li>
+                    <li>Limpiar markdown fences con regex</li>
+                    <li>Parsear JSON con try/catch y mensaje amigable de error</li>
+                </ul>
+            </li>
+            <li>Gestionar estados de carga:
+                <ul>
+                    <li>Botón deshabilitado con spinner CSS</li>
+                    <li>Barra de progreso simulada: 10% → 20% (enviando) → 70% (procesando) → 100%</li>
+                    <li>Mensajes de estado: "Enviando imágenes a la IA..." → "Procesando respuesta..."</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <h3>Fase 4: Renderizado de Contenido Generado <span class="badge-improved">MEJORADO</span></h3>
+        <ol>
+            <li>Crear header de resultados con título detectado y chips de tipos generados</li>
+            <li>Renderizar resumen como HTML directo en <code>.result-body</code> con estilos para h1-h3, p, ul, strong, .highlight</li>
+            <li>Renderizar flashcards:
+                <ul>
+                    <li>Grid responsivo: <code>repeat(auto-fill, minmax(200px, 1fr))</code></li>
+                    <li>Cada card: click para flip (toggle display de frente/reverso)</li>
+                    <li>Control de estado con <code>dataset.flipped</code></li>
+                    <li>Hint visual: "Haz clic en cada tarjeta para ver la respuesta"</li>
+                </ul>
+            </li>
+            <li>Renderizar preview de quiz con botón "Iniciar →"</li>
+            <li>Renderizar mapa conceptual como HTML en result-body</li>
+            <li>Botones de acción: "Iniciar Quiz", "Imprimir", "Copiar"</li>
+            <li>Scroll automático a resultados: <code>scrollIntoView({ behavior: 'smooth' })</code></li>
+        </ol>
+        
+        <h3>Fase 5: Sistema de Evaluación (Quiz)</h3>
+        <ol>
+            <li>Implementar <code>startQuiz()</code>: resetear índice y puntaje, cambiar a tab quiz</li>
+            <li>Implementar <code>renderQuizQuestion()</code>:
+                <ul>
+                    <li>Mostrar progreso: "Pregunta X de Y" + barra de progreso</li>
+                    <li>Mostrar puntaje actual: "⭐ N correctas"</li>
+                    <li>Renderizar opciones A-D como botones clickeables</li>
+                    <li>Área de feedback oculta inicialmente</li>
+                </ul>
+            </li>
+            <li>Implementar <code>answerQuiz(idx)</code>:
+                <ul>
+                    <li>Guard: si ya respondió, ignorar</li>
+                    <li>Marcar todas las opciones como <code>.disabled</code></li>
+                    <li>Marcar correcta como <code>.correct</code> (verde)</li>
+                    <li>Si incorrecta: marcar seleccionada como <code>.wrong</code> (rojo)</li>
+                    <li>Mostrar feedback con explicación</li>
+                    <li>Mostrar botón "Siguiente pregunta" / "Ver resultados"</li>
+                </ul>
+            </li>
+            <li>Implementar <code>showQuizResults()</code>: vista con score-circle, emoji, mensaje y botones de acción</li>
+        </ol>
+        
+        <h3>Fase 6: Historial y Persistencia</h3>
+        <ol>
+            <li>Al generar contenido exitosamente, crear entrada de historial:
+                <pre><code>{ id: Date.now(), titulo, date, types, data: parsedJSON }</code></pre>
+            </li>
+            <li>Insertar al inicio del array (<code>unshift</code>) y limitar a 30 entradas</li>
+            <li>Guardar en <code>localStorage('sb_history')</code></li>
+            <li>Implementar <code>renderHistory()</code>: lista de items con icono, título, fecha y tipos</li>
+            <li>Implementar <code>loadHistory(i)</code>: cargar sesión, re-renderizar resultados, recargar quiz si existe</li>
+            <li>Estado vacío con icono 📂 y mensaje cuando no hay historial</li>
+        </ol>
+        
+        <h3>Fase 7: Sistema de Toast y Funciones Auxiliares <span class="badge-new">NUEVO</span></h3>
+        <ol>
+            <li>Implementar <code>showToast(msg)</code>:
+                <ul>
+                    <li>Crear elemento <code>#sb-toast</code> si no existe (creación lazy)</li>
+                    <li>Posición: fixed, bottom: 24px, left: 50%, transform: translateX(-50%)</li>
+                    <li>Cancelar timeout previo con <code>clearTimeout</code></li>
+                    <li>Fade-out a los 2800ms</li>
+                </ul>
+            </li>
+            <li>Implementar <code>escHtml(str)</code>: sanitizar &amp;, &lt;, &gt;, &quot; para prevenir XSS</li>
+            <li>Implementar <code>copyText(text)</code>: Clipboard API con feedback toast</li>
+            <li>Implementar <code>printContent()</code>:
+                <ul>
+                    <li>Abrir <code>window.open('', '_blank')</code></li>
+                    <li>Escribir HTML con estilos simplificados de impresión</li>
+                    <li>Ejecutar <code>window.print()</code></li>
+                </ul>
+            </li>
+            <li>Implementar <code>toggleApiKey()</code>: toggle entre type="password" y type="text"</li>
+        </ol>
+
+        <h3>Fase 8: Responsive y Optimización Móvil</h3>
+        <ol>
+            <li>Implementar media query <code>@media (max-width: 600px)</code>:
+                <ul>
+                    <li>Header: padding reducido</li>
+                    <li>Container: padding reducido</li>
+                    <li>Form rows: 1 columna</li>
+                    <li>Tabs: fuente más pequeña, emojis ocultos</li>
+                </ul>
+            </li>
+            <li>Asegurar que la cámara use <code>facingMode: 'environment'</code> para cámara trasera en móviles</li>
+            <li>Verificar que el upload area funcione con tap en dispositivos touch</li>
+            <li>Probar rendimiento con imágenes grandes en dispositivos con poca RAM</li>
+        </ol>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase phase-critical">
+        <h2>4. Manejo de Errores y Casos Límite <span class="badge-new">NUEVO</span></h2>
+        
+        <h3>4.1. Errores de Validación</h3>
+        <table>
+            <tr><th>Escenario</th><th>Acción</th><th>Mensaje</th></tr>
+            <tr><td>Sin API Key</td><td>Bloquear generación</td><td>"⚠️ Primero configura tu API Key en Inicio"</td></tr>
+            <tr><td>Sin imágenes</td><td>Bloquear generación</td><td>"⚠️ Sube al menos una imagen"</td></tr>
+            <tr><td>Error de cámara</td><td>Toast de advertencia</td><td>"⚠️ No se pudo acceder a la cámara. Usa 'Subir imágenes'."</td></tr>
+            <tr><td>Error de clipboard</td><td>Toast de error</td><td>"No se pudo copiar"</td></tr>
+        </table>
+
+        <h3>4.2. Errores de API</h3>
+        <table>
+            <tr><th>Escenario</th><th>Manejo</th></tr>
+            <tr><td>HTTP no-OK</td><td>Extraer <code>err.error?.message</code> del body JSON</td></tr>
+            <tr><td>Respuesta no-JSON</td><td>Mensaje: "La IA devolvió una respuesta inesperada. Intenta de nuevo."</td></tr>
+            <tr><td>Timeout de red</td><td>Capturado por catch genérico con <code>err.message</code></td></tr>
+            <tr><td>API Key inválida</td><td>Error de API con mensaje descriptivo de Google</td></tr>
+        </table>
+
+        <h3>4.3. Casos Límite</h3>
+        <ul>
+            <li>Quiz sin preguntas generadas: mostrar empty state con link a "Generar"</li>
+            <li>Historial vacío: empty state con icono y mensaje</li>
+            <li>Respuesta de IA con markdown fences: limpieza con regex antes de parsear</li>
+            <li><code>state.genTypes</code> nunca puede quedar vacío (mínimo 1 tipo seleccionado)</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase phase-critical">
+        <h2>5. Consideraciones de Seguridad <span class="badge-new">NUEVO</span></h2>
+        
+        <div class="danger-box">
+            <strong>⚠️ Riesgo conocido:</strong> La API Key de Gemini se envía directamente desde el frontend al endpoint de Google. Esto significa que la key es visible en las herramientas de desarrollo del navegador y en el código fuente.
+        </div>
+
+        <h3>5.1. Mitigaciones Actuales</h3>
+        <ul>
+            <li>La API Key se almacena solo en <code>localStorage</code> del navegador del usuario</li>
+            <li>No se envía a ningún servidor propio</li>
+            <li>Campo con <code>type="password"</code> para ocultarla visualmente</li>
+            <li>Cada usuario usa su propia API Key gratuita</li>
+            <li>Sanitización de HTML con <code>escHtml()</code> para prevenir XSS en contenido renderizado</li>
+        </ul>
+
+        <h3>5.2. Mejoras Recomendadas (Futuro)</h3>
+        <ul>
+            <li>Implementar un proxy backend ligero (Cloud Function / Edge Function) para ocultar la API Key</li>
+            <li>Agregar rate limiting en el cliente para evitar abuso</li>
+            <li>Validar el tamaño máximo de imágenes antes de enviar (recomendado: 4MB por imagen)</li>
+            <li>Implementar CSP (Content Security Policy) headers</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase phase-new">
+        <h2>6. Mejoras Recomendadas <span class="badge-new">NUEVO</span></h2>
+
+        <h3>6.1. Accesibilidad (a11y)</h3>
+        <ul>
+            <li>El HTML ya usa <code>role="tablist"</code> en las pestañas — expandir con <code>role="tab"</code>, <code>aria-selected</code>, <code>aria-controls</code></li>
+            <li>Agregar <code>aria-label</code> a botones con solo emoji (captura, eliminar)</li>
+            <li>Implementar navegación por teclado en tabs y quiz options</li>
+            <li>Verificar contraste de colores con herramienta WCAG (especialmente <code>--text3: #9CA3AF</code>)</li>
+            <li>Agregar <code>alt</code> descriptivos a imágenes de preview</li>
+        </ul>
+
+        <h3>6.2. PWA / Modo Offline</h3>
+        <ul>
+            <li>Agregar <code>manifest.json</code> para instalabilidad</li>
+            <li>Implementar Service Worker para cacheo de assets y contenido generado</li>
+            <li>Permitir uso offline del historial y quiz (ya están en localStorage)</li>
+        </ul>
+
+        <h3>6.3. Optimización de Rendimiento</h3>
+        <ul>
+            <li>Comprimir imágenes antes de enviar a la API (canvas resize a max ~1500px de lado mayor)</li>
+            <li>Limitar número máximo de imágenes simultáneas (sugerido: 10)</li>
+            <li>Implementar lazy loading para el historial si crece</li>
+            <li>Limitar tamaño total de localStorage (sugerido: alertar si > 5MB)</li>
+        </ul>
+
+        <h3>6.4. UX Adicional</h3>
+        <ul>
+            <li>Confirmar antes de eliminar historial completo</li>
+            <li>Botón para eliminar entradas individuales del historial</li>
+            <li>Exportar/importar historial como JSON para respaldo</li>
+            <li>Modo oscuro (dark theme) usando las variables CSS existentes</li>
+            <li>Sonidos/vibraciones sutiles al responder quiz (opcional)</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase">
+        <h2>7. Plan de Pruebas y Verificación <span class="badge-improved">MEJORADO</span></h2>
+        
+        <h3>7.1. Pruebas Funcionales</h3>
+        <table>
+            <tr><th>#</th><th>Test</th><th>Criterio de Éxito</th></tr>
+            <tr><td>1</td><td>Guardar y cargar configuración</td><td>Datos persisten tras recarga de página</td></tr>
+            <tr><td>2</td><td>Subir imagen desde archivo</td><td>Preview muestra imagen con número de página</td></tr>
+            <tr><td>3</td><td>Drag & drop de imagen</td><td>Zona cambia de estilo y imagen se agrega</td></tr>
+            <tr><td>4</td><td>Capturar foto con cámara</td><td>Toast "📸 Foto tomada" y preview agregada</td></tr>
+            <tr><td>5</td><td>Eliminar imagen</td><td>Imagen se remueve y numeración se actualiza</td></tr>
+            <tr><td>6</td><td>Generar resumen</td><td>HTML renderizado correctamente en result-body</td></tr>
+            <tr><td>7</td><td>Generar quiz</td><td>10 preguntas con opciones y respuestas correctas</td></tr>
+            <tr><td>8</td><td>Flashcards flip</td><td>Click alterna frente/reverso con cambio de fondo</td></tr>
+            <tr><td>9</td><td>Completar quiz</td><td>Score muestra puntaje, emoji y mensaje correcto</td></tr>
+            <tr><td>10</td><td>Historial guarda sesión</td><td>Entrada aparece en pestaña Historial</td></tr>
+            <tr><td>11</td><td>Cargar sesión del historial</td><td>Resultados se re-renderizan correctamente</td></tr>
+            <tr><td>12</td><td>Generar sin API Key</td><td>Toast de advertencia, no se envía request</td></tr>
+            <tr><td>13</td><td>Generar sin imágenes</td><td>Toast de advertencia, no se envía request</td></tr>
+            <tr><td>14</td><td>API Key inválida</td><td>Toast con mensaje de error de Google</td></tr>
+            <tr><td>15</td><td>Imprimir contenido</td><td>Ventana de impresión se abre con contenido formateado</td></tr>
+        </table>
+
+        <h3>7.2. Pruebas de Compatibilidad</h3>
+        <ul>
+            <li>Chrome (desktop + Android)</li>
+            <li>Safari (iOS + macOS)</li>
+            <li>Firefox (desktop)</li>
+            <li>Edge (desktop)</li>
+        </ul>
+
+        <h3>7.3. Pruebas de Responsive</h3>
+        <ul>
+            <li>iPhone SE (375px)</li>
+            <li>iPhone 14 (390px)</li>
+            <li>iPad (768px)</li>
+            <li>Desktop (1024px+)</li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="phase">
+        <h2>8. Diseño CSS — Sistema de Tokens <span class="badge-new">NUEVO</span></h2>
+        
+        <h3>Paleta de Colores</h3>
+        <table>
+            <tr><th>Variable</th><th>Valor</th><th>Uso</th></tr>
+            <tr><td><code>--primary</code></td><td>#4F46E5</td><td>Acciones principales, tabs activos, links</td></tr>
+            <tr><td><code>--primary-light</code></td><td>#EEF2FF</td><td>Fondos hover, badges, alertas info</td></tr>
+            <tr><td><code>--primary-dark</code></td><td>#3730A3</td><td>Hover de botones, títulos en resultados</td></tr>
+            <tr><td><code>--accent</code></td><td>#F59E0B</td><td>Botones de acción secundarios (quiz)</td></tr>
+            <tr><td><code>--accent-light</code></td><td>#FEF3C7</td><td>Highlights, alertas warning</td></tr>
+            <tr><td><code>--success</code></td><td>#10B981</td><td>Respuestas correctas</td></tr>
+            <tr><td><code>--danger</code></td><td>#EF4444</td><td>Respuestas incorrectas, eliminar</td></tr>
+            <tr><td><code>--surface</code></td><td>#FFFFFF</td><td>Fondo de cards</td></tr>
+            <tr><td><code>--surface2</code></td><td>#F8F7FF</td><td>Fondo general de la app</td></tr>
+            <tr><td><code>--border</code></td><td>#E5E7EB</td><td>Bordes de cards, inputs, separadores</td></tr>
+            <tr><td><code>--text</code></td><td>#1F2937</td><td>Texto principal</td></tr>
+            <tr><td><code>--text2</code></td><td>#6B7280</td><td>Texto secundario, labels</td></tr>
+            <tr><td><code>--text3</code></td><td>#9CA3AF</td><td>Texto terciario, fechas</td></tr>
+        </table>
+
+        <h3>Tipografía</h3>
+        <ul>
+            <li><strong>Nunito:</strong> 400, 600, 700, 800, 900 — cuerpo de texto, botones, labels</li>
+            <li><strong>Sora:</strong> 400, 600, 700 — títulos, logos, encabezados de sección</li>
+        </ul>
+
+        <h3>Espaciado y Bordes</h3>
+        <ul>
+            <li><code>--radius: 16px</code> — cards, bloques de resultado</li>
+            <li><code>--radius-sm: 10px</code> — inputs, botones, quiz options</li>
+            <li><code>--shadow: 0 4px 24px rgba(79,70,229,0.10)</code> — elevación principal</li>
+            <li><code>--shadow-card: 0 2px 12px rgba(0,0,0,0.07)</code> — cards básicas</li>
+        </ul>
+    </div>
+
+</body>
+</html>
