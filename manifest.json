@@ -2,8 +2,8 @@
   "name": "StudyBuddy - Tu asistente de estudio con IA",
   "short_name": "StudyBuddy",
   "description": "Fotografía tu material escolar y genera resúmenes, quizzes y flashcards con inteligencia artificial. Para niños de 6 a 15 años.",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F8F7FF",
@@ -35,7 +35,7 @@
     {
       "name": "Generar material",
       "short_name": "Generar",
-      "url": "/index.html#generar",
+      "url": "./index.html#generar",
       "icons": [
         {
           "src": "icons/icon-192.png",
@@ -46,7 +46,7 @@
     {
       "name": "Practicar Quiz",
       "short_name": "Quiz",
-      "url": "/index.html#quiz",
+      "url": "./index.html#quiz",
       "icons": [
         {
           "src": "icons/icon-192.png",
