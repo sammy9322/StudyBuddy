@@ -1,0 +1,58 @@
+{
+  "name": "StudyBuddy - Tu asistente de estudio con IA",
+  "short_name": "StudyBuddy",
+  "description": "Fotografía tu material escolar y genera resúmenes, quizzes y flashcards con inteligencia artificial. Para niños de 6 a 15 años.",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F7FF",
+  "theme_color": "#4F46E5",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Generar material",
+      "short_name": "Generar",
+      "url": "/index.html#generar",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Practicar Quiz",
+      "short_name": "Quiz",
+      "url": "/index.html#quiz",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
