@@ -1309,6 +1309,7 @@ async function generateContent() {
   let instructions = `Eres un tutor educativo experto. Analiza las imágenes de material escolar (libro/cuaderno) y genera el siguiente contenido para ${name}, ${gradeLabel}.
 Materia: ${subject || 'General'}. Tema: ${topic || 'el contenido de las imágenes'}.
 ${notes ? 'Notas del padre/tutor: ' + notes : ''}
+Ten en cuenta que el material escolar puede incluir texto manuscrito (escrito a mano). Si encuentras caligrafía difícil de leer o trazos ambiguos, usa el contexto educativo del tema para deducir las palabras correctas de forma lógica y coherente.
 Usa un lenguaje claro, amigable y apropiado para la edad. Responde SIEMPRE en español.
 Devuelve la respuesta en JSON con esta estructura exacta (sin markdown, solo JSON puro):
 {
