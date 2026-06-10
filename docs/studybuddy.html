@@ -542,6 +542,110 @@
     to   { opacity: 1; transform: translateY(0); }
   }
   .animate-in { animation: fadeUp 0.35s ease both; }
+
+  /* ── SISTEMA DE PERFILES (PREMIUM) ── */
+  .active-profile-header-pill {
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+  }
+  .active-profile-header-pill:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-1px);
+  }
+  .profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+    margin-bottom: 14px;
+  }
+  .profile-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .profile-card:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+  }
+  .profile-card.active {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .profile-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px auto;
+  }
+  .profile-card.active .profile-avatar {
+    background: var(--primary);
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+  }
+  .profile-name {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+  }
+  .profile-grade {
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .profile-actions {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .profile-card:hover .profile-actions {
+    opacity: 1;
+  }
+  .profile-action-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .profile-action-btn:hover {
+    background: var(--border);
+  }
 </style>
 </head>
 <body>
@@ -551,7 +655,10 @@
     <div class="logo-icon">📖</div>
     StudyBuddy
   </div>
-  <span class="header-badge">✨ Con IA</span>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <div id="activeProfileHeader" class="active-profile-header-pill" style="display: none;" onclick="showTab('inicio')"></div>
+    <span class="header-badge">✨ Con IA</span>
+  </div>
 </header>
 
 <div class="container">
@@ -584,27 +691,43 @@
       </button>
     </div>
 
-    <!-- CONFIG CARD -->
+    <!-- CONFIG CARD: GESTIÓN DE PERFILES -->
     <div class="card animate-in" style="animation-delay: 0.08s;">
-      <div class="card-title"><span>⚙️</span> Configuración</div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Nombre del estudiante</label>
-          <input class="form-control" id="studentName" type="text" placeholder="Ej: Sofía" value="">
+      <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span>👤 Gestión de Estudiantes</span>
+        <button class="btn btn-primary" onclick="openProfileForm()" id="btnAddProfile" style="padding: 6px 12px; font-size: 13px; font-weight: 600; width: auto; margin-top: 0;">➕ Agregar Estudiante</button>
+      </div>
+      <!-- Formulario para agregar/editar perfil (oculto por defecto) -->
+      <div id="profileFormWrapper" style="display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; margin-top: 10px;">
+        <h4 id="profileFormTitle" style="margin-top: 0; margin-bottom: 12px; font-family: 'Sora', sans-serif;">Agregar Estudiante</h4>
+        <input type="hidden" id="editProfileId" value="">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Nombre del estudiante</label>
+            <input class="form-control" id="studentName" type="text" placeholder="Ej: Sofía" value="">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Grado / Nivel</label>
+            <select class="form-control" id="studentGrade">
+              <option value="primaria_baja">1° - 3° Primaria (6-9 años)</option>
+              <option value="primaria_alta" selected>4° - 6° Primaria (9-12 años)</option>
+              <option value="secundaria">Secundaria (12-15 años)</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Grado / Nivel</label>
-          <select class="form-control" id="studentGrade">
-            <option value="primaria_baja">1° - 3° Primaria (6-9 años)</option>
-            <option value="primaria_alta" selected>4° - 6° Primaria (9-12 años)</option>
-            <option value="secundaria">Secundaria (12-15 años)</option>
-          </select>
+        <div style="display: flex; gap: 10px; margin-top: 12px; justify-content: flex-end;">
+          <button class="btn" style="background: var(--border); color: var(--text); width: auto; margin-top: 0; padding: 6px 12px;" onclick="closeProfileForm()">Cancelar</button>
+          <button class="btn btn-primary" style="width: auto; margin-top: 0; padding: 6px 12px;" onclick="saveProfile()">💾 Guardar Estudiante</button>
         </div>
       </div>
+      <!-- Grilla de perfiles cargados -->
+      <div id="profilesGrid" class="profiles-grid"></div>
+    </div>
+    <!-- CONFIG CARD: API KEY GLOBAL -->
+    <div class="card animate-in" style="animation-delay: 0.12s;">
+      <div class="card-title">🔑 API Key Familiar (Google AI Studio)</div>
 
       <div class="form-group" style="margin-bottom: 1rem;">
-        <label class="form-label">API Key de Gemini (Google AI Studio)</label>
         <div class="api-key-wrap">
           <input class="form-control" id="apiKey" type="password" placeholder="AIza...">
           <button class="api-key-toggle" onclick="toggleApiKey()" title="Mostrar/ocultar">👁</button>
@@ -615,12 +738,10 @@
           </a>
         </div>
       </div>
-
       <div class="alert alert-info">
-        💡 <span>Tu API Key se guarda solo en tu navegador. <strong>Nunca</strong> se envía a ningún servidor nuestro.</span>
+        💡 <span>Tu API Key se guarda solo en tu navegador y es compartida por todos los perfiles de estudiantes de la familia.</span>
       </div>
-
-      <button class="btn btn-primary" onclick="saveConfig()">💾 Guardar configuración</button>
+      <button class="btn btn-primary" onclick="saveApiKey()">💾 Guardar API Key</button>
     </div>
 
     <!-- COMO FUNCIONA -->
@@ -768,7 +889,9 @@
 // ── STATE ──
 const state = {
   images: [],       // { file, dataUrl, base64 }
-  config: {},
+  apiKey: '',       // API Key global de la familia
+  profiles: [],     // Array de perfiles: { id, name, grade, history }
+  activeProfileId: '', // ID del perfil activo
   currentQuiz: null,
   quizIndex: 0,
   quizScore: 0,
@@ -776,20 +899,69 @@ const state = {
   history: [],
   genTypes: new Set(['resumen','quiz','flashcards'])
 };
-
 // ── INIT ──
 (function init() {
-  const saved = localStorage.getItem('sb_config');
-  if (saved) {
-    state.config = JSON.parse(saved);
-    if (state.config.name) document.getElementById('studentName').value = state.config.name;
-    if (state.config.grade) document.getElementById('studentGrade').value = state.config.grade;
-    if (state.config.apiKey) document.getElementById('apiKey').value = state.config.apiKey;
-  }
-  const hist = localStorage.getItem('sb_history');
-  if (hist) {
-    state.history = JSON.parse(hist);
+  // 1. Cargar API Key
+  try {
+    state.apiKey = localStorage.getItem('sb_api_key') || '';
+    if (!state.apiKey) {
+      const oldConfig = localStorage.getItem('sb_config');
+      if (oldConfig) {
+        const parsedOld = JSON.parse(oldConfig);
+        state.apiKey = parsedOld.apiKey || '';
+        if (state.apiKey) {
+          localStorage.setItem('sb_api_key', state.apiKey);
+        }
+      }
+    }
+    document.getElementById('apiKey').value = state.apiKey;
+  } catch {}
+  // 2. Cargar perfiles
+  try {
+    const savedProfiles = localStorage.getItem('sb_profiles');
+    if (savedProfiles) {
+      state.profiles = JSON.parse(savedProfiles);
+    } else {
+      const oldConfig = localStorage.getItem('sb_config');
+      if (oldConfig) {
+        const parsedOld = JSON.parse(oldConfig);
+        if (parsedOld.name) {
+          let oldHistory = [];
+          try {
+            const histStr = localStorage.getItem('sb_history');
+            if (histStr) oldHistory = JSON.parse(histStr);
+          } catch {}
+          const initialProfile = {
+            id: 'profile_' + Date.now(),
+            name: parsedOld.name,
+            grade: parsedOld.grade || 'primaria_alta',
+            history: oldHistory
+          };
+          state.profiles.push(initialProfile);
+          localStorage.setItem('sb_profiles', JSON.stringify(state.profiles));
+          state.activeProfileId = initialProfile.id;
+          localStorage.setItem('sb_active_profile_id', state.activeProfileId);
+        }
+      }
+    }
+    state.activeProfileId = localStorage.getItem('sb_active_profile_id') || '';
+
+    if (state.profiles.length > 0 && !state.activeProfileId) {
+      state.activeProfileId = state.profiles[0].id;
+      localStorage.setItem('sb_active_profile_id', state.activeProfileId);
+    }
+    const activeProf = state.profiles.find(p => p.id === state.activeProfileId);
+    if (activeProf) {
+      state.history = activeProf.history || [];
+    } else {
+      state.history = [];
+    }
+
     renderHistory();
+    renderProfilesList();
+    updateActiveProfileHeader();
+  } catch (err) {
+    console.error("Error inicializando perfiles:", err);
   }
   // pill multi-select
   document.querySelectorAll('#genTypePills .level-pill').forEach(p => {
@@ -801,6 +973,11 @@ const state = {
       } else { state.genTypes.add(val); p.classList.add('active'); }
     });
   });
+  // PWA hash routing
+  const hash = window.location.hash.replace('#', '');
+  if (hash && document.getElementById('section-' + hash)) {
+    showTab(hash);
+  }
 })();
 
 // ── TABS ──
@@ -824,6 +1001,160 @@ function saveConfig() {
 function toggleApiKey() {
   const inp = document.getElementById('apiKey');
   inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── GESTIÓN DE PERFILES ──
+function renderProfilesList() {
+  const grid = document.getElementById('profilesGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  if (state.profiles.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 24px; color: var(--text2); font-size: 14px;">
+        No hay estudiantes registrados. Agrega uno para empezar.
+      </div>
+    `;
+    return;
+  }
+  state.profiles.forEach(p => {
+    const isActive = p.id === state.activeProfileId;
+    const initial = p.name ? p.name.trim().charAt(0).toUpperCase() : '👤';
+    let gradeLabel = '';
+    if (p.grade === 'primaria_baja') gradeLabel = '1°-3° Primaria';
+    else if (p.grade === 'primaria_alta') gradeLabel = '4°-6° Primaria';
+    else if (p.grade === 'secundaria') gradeLabel = 'Secundaria';
+    const card = document.createElement('div');
+    card.className = `profile-card ${isActive ? 'active' : ''}`;
+    card.setAttribute('onclick', `selectProfile('${p.id}')`);
+    card.innerHTML = `
+      <div class="profile-actions" onclick="event.stopPropagation();">
+        <button class="profile-action-btn" onclick="editProfile('${p.id}')" title="Editar">✏️</button>
+        <button class="profile-action-btn" onclick="confirmDeleteProfile('${p.id}')" title="Eliminar">🗑️</button>
+      </div>
+      <div class="profile-avatar">${initial}</div>
+      <div class="profile-name" title="${p.name}">${p.name}</div>
+      <div class="profile-grade">${gradeLabel}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+function updateActiveProfileHeader() {
+  const headerPill = document.getElementById('activeProfileHeader');
+  if (!headerPill) return;
+
+  const activeProf = state.profiles.find(p => p.id === state.activeProfileId);
+  if (activeProf) {
+    let gradeLabel = '';
+    if (activeProf.grade === 'primaria_baja') gradeLabel = '6-9 años';
+    else if (activeProf.grade === 'primaria_alta') gradeLabel = '9-12 años';
+    else if (activeProf.grade === 'secundaria') gradeLabel = '12-15 años';
+    headerPill.innerHTML = `👤 ${activeProf.name} (${gradeLabel})`;
+    headerPill.style.display = 'flex';
+  } else {
+    headerPill.style.display = 'none';
+  }
+}
+function selectProfile(id) {
+  state.activeProfileId = id;
+  localStorage.setItem('sb_active_profile_id', id);
+
+  const activeProf = state.profiles.find(p => p.id === id);
+  state.history = activeProf ? (activeProf.history || []) : [];
+
+  renderProfilesList();
+  updateActiveProfileHeader();
+  renderHistory();
+  showToast(`Estudiante activo: ${activeProf ? activeProf.name : ''}`);
+}
+function openProfileForm(isEdit = false) {
+  const wrapper = document.getElementById('profileFormWrapper');
+  const title = document.getElementById('profileFormTitle');
+  const nameInput = document.getElementById('studentName');
+  const gradeInput = document.getElementById('studentGrade');
+  const editIdInput = document.getElementById('editProfileId');
+  if (isEdit) {
+    title.textContent = 'Editar Estudiante';
+  } else {
+    title.textContent = 'Agregar Estudiante';
+    nameInput.value = '';
+    gradeInput.value = 'primaria_alta';
+    editIdInput.value = '';
+  }
+  wrapper.style.display = 'block';
+  wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function closeProfileForm() {
+  document.getElementById('profileFormWrapper').style.display = 'none';
+}
+function saveProfile() {
+  const name = document.getElementById('studentName').value.trim();
+  const grade = document.getElementById('studentGrade').value;
+  const editId = document.getElementById('editProfileId').value;
+  if (!name) {
+    showToast('⚠️ Ingresa el nombre del estudiante');
+    return;
+  }
+  if (editId) {
+    const prof = state.profiles.find(p => p.id === editId);
+    if (prof) {
+      prof.name = name;
+      prof.grade = grade;
+    }
+  } else {
+    const newId = 'profile_' + Date.now();
+    const newProf = {
+      id: newId,
+      name: name,
+      grade: grade,
+      history: []
+    };
+    state.profiles.push(newProf);
+    if (state.profiles.length === 1 || !state.activeProfileId) {
+      state.activeProfileId = newId;
+      localStorage.setItem('sb_active_profile_id', newId);
+      state.history = [];
+    }
+  }
+  localStorage.setItem('sb_profiles', JSON.stringify(state.profiles));
+  renderProfilesList();
+  updateActiveProfileHeader();
+  closeProfileForm();
+  showToast('💾 Estudiante guardado');
+}
+function editProfile(id) {
+  const prof = state.profiles.find(p => p.id === id);
+  if (!prof) return;
+  document.getElementById('studentName').value = prof.name;
+  document.getElementById('studentGrade').value = prof.grade;
+  document.getElementById('editProfileId').value = prof.id;
+  openProfileForm(true);
+}
+function confirmDeleteProfile(id) {
+  const prof = state.profiles.find(p => p.id === id);
+  if (!prof) return;
+  if (confirm(`¿Estás seguro de que quieres eliminar el perfil de ${prof.name}? Se perderá todo su historial.`)) {
+    state.profiles = state.profiles.filter(p => p.id !== id);
+    localStorage.setItem('sb_profiles', JSON.stringify(state.profiles));
+
+    if (state.activeProfileId === id) {
+      state.activeProfileId = state.profiles.length > 0 ? state.profiles[0].id : '';
+      localStorage.setItem('sb_active_profile_id', state.activeProfileId);
+
+      const activeProf = state.profiles.find(p => p.id === state.activeProfileId);
+      state.history = activeProf ? (activeProf.history || []) : [];
+    }
+
+    renderProfilesList();
+    updateActiveProfileHeader();
+    renderHistory();
+    showToast('🗑️ Perfil eliminado');
+  }
+}
+function saveApiKey() {
+  const key = document.getElementById('apiKey').value.trim();
+  state.apiKey = key;
+  localStorage.setItem('sb_api_key', key);
+  showToast('✅ API Key guardada');
 }
 
 // ── FILE HANDLING ──
@@ -900,15 +1231,24 @@ function closeCamera() {
 
 // ── GENERATE ──
 async function generateContent() {
-  const apiKey = document.getElementById('apiKey').value.trim() || state.config.apiKey;
-  if (!apiKey) { showToast('⚠️ Primero configura tu API Key en Inicio'); return; }
+  const activeProf = state.profiles.find(p => p.id === state.activeProfileId);
+  if (!activeProf) {
+    showToast('⚠️ Primero agrega un Estudiante en Configuración');
+    showTab('inicio');
+    return;
+  }
+  const apiKey = state.apiKey;
+  if (!apiKey) {
+    showToast('⚠️ Primero configura tu API Key en la sección de Configuración');
+    showTab('inicio');
+    return;
+  }
   if (state.images.length === 0) { showToast('⚠️ Sube al menos una imagen'); return; }
-
   const subject = document.getElementById('subject').value.trim();
   const topic = document.getElementById('topic').value.trim();
   const notes = document.getElementById('extraNotes').value.trim();
-  const grade = document.getElementById('studentGrade').value || state.config.grade || 'primaria_alta';
-  const name = document.getElementById('studentName').value.trim() || state.config.name || 'el estudiante';
+  const grade = activeProf.grade || 'primaria_alta';
+  const name = activeProf.name || 'el estudiante';
 
   const gradeMap = { primaria_baja: 'niño de 6 a 9 años, 1°-3° primaria', primaria_alta: 'niño de 9 a 12 años, 4°-6° primaria', secundaria: 'adolescente de 12 a 15 años, secundaria' };
   const gradeLabel = gradeMap[grade] || gradeMap['primaria_alta'];
@@ -1027,7 +1367,13 @@ ${wantFlash ? 'Genera al menos 8 flashcards con los conceptos clave.' : ''}`;
     };
     state.history.unshift(entry);
     if (state.history.length > 30) state.history.pop();
-    localStorage.setItem('sb_history', JSON.stringify(state.history));
+
+    // Guardar en el historial del perfil activo específico
+    if (activeProf) {
+      activeProf.history = state.history;
+      localStorage.setItem('sb_profiles', JSON.stringify(state.profiles));
+    }
+    localStorage.setItem('sb_history', JSON.stringify(state.history)); // fallback legacy opcional
     renderHistory();
 
     // Load quiz if generated
