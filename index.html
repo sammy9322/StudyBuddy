@@ -965,25 +965,66 @@ ${wantFlash ? 'Genera al menos 8 flashcards con los conceptos clave.' : ''}`;
 
   setGenLoading(true, 'Enviando imágenes a la IA...');
   setProgress(20);
-
+  let res = null;
+  let lastError = null;
+  const models = ['gemini-3.5-flash', 'gemini-2.5-flash'];
+  const maxRetriesPerModel = 3;
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [...imageParts, { text: instructions }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
-      })
-    });
+    for (let model of models) {
+      let delay = 2000;
+      for (let attempt = 1; attempt <= maxRetriesPerModel; attempt++) {
+        try {
+          const modelUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
+          if (model !== models[0] || attempt > 1) {
+            setGenStatusMsg(`Reintentando con ${model} (intento ${attempt}/${maxRetriesPerModel})...`);
+          } else {
+            setGenStatusMsg('Conectando con la IA...');
+          }
+          res = await fetch(modelUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [...imageParts, { text: instructions }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
+            })
+          });
+          if (res.status === 503 || res.status === 429) {
+            const errData = await res.json().catch(() => ({}));
+            lastError = new Error(errData.error?.message || `Error ${res.status}`);
+            console.warn(`[${model}] Intento ${attempt} falló con estado ${res.status}. Reintentando en ${delay}ms...`);
+
+            if (attempt < maxRetriesPerModel) {
+              setGenStatusMsg('La IA está muy solicitada. Reintentando en breve...');
+              await new Promise(resolve => setTimeout(resolve, delay));
+              delay *= 2;
+              continue;
+            }
+          } else if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error?.message || `Error ${res.status} de la API`);
+          } else {
+            break;
+          }
+        } catch (err) {
+          lastError = err;
+          console.warn(`[${model}] Error de red en intento ${attempt}:`, err);
+          if (attempt < maxRetriesPerModel) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
+            continue;
+          }
+        }
+      }
+      if (res && res.ok) {
+        break;
+      }
+    }
+    if (!res || !res.ok) {
+      throw lastError || new Error('No se pudo conectar con los servidores de la IA después de varios intentos.');
+    }
     setProgress(70);
     setGenStatusMsg('Procesando respuesta...');
-
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'Error de API');
-    }
-
     const data = await res.json();
     let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
