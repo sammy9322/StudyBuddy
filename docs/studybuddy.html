@@ -691,6 +691,23 @@
       </button>
     </div>
 
+    <!-- TARJETA INTELIGENTE DE INSTALACIÓN PWA -->
+    <div id="pwaInstallCard" class="card animate-in" style="display: none; background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent-light) 100%); border: 1px solid #C7D2FE; margin-bottom: 1.5rem; animation-delay: 0.04s;">
+      <div style="display: flex; gap: 14px; align-items: flex-start; flex-direction: row;">
+        <div style="font-size: 2.2rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); line-height: 1;">📲</div>
+        <div style="flex: 1;">
+          <div style="font-family: 'Sora', sans-serif; font-weight: 800; font-size: 15px; margin-bottom: 4px; color: var(--text);">¡Lleva StudyBuddy en tu celular!</div>
+          <div id="pwaInstallInstructions" style="font-size: 13px; color: var(--text2); line-height: 1.4;">
+            Instala la aplicación para abrirla al instante y estudiar a pantalla completa.
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 10px;">
+            <button id="btnPwaInstallAction" class="btn btn-primary" style="width: auto; margin-top: 0; padding: 6px 14px; font-size: 13px; display: none;" onclick="triggerPwaInstall()">Instalar App</button>
+            <button class="btn" style="width: auto; margin-top: 0; padding: 6px 14px; font-size: 13px; background: var(--card-bg); color: var(--text);" onclick="dismissInstallCard()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIG CARD: GESTIÓN DE PERFILES -->
     <div class="card animate-in" style="animation-delay: 0.08s;">
       <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -1702,6 +1719,138 @@ function showToast(msg) {
   toast.style.opacity = '1';
   toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 2800);
 }
+
+// ── PWA: REGISTRO DEL SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => {
+        console.log('[PWA] Service Worker registrado:', reg.scope);
+      })
+      .catch((err) => {
+        console.log('[PWA] Error al registrar SW:', err);
+      });
+  });
+}
+
+// ── PWA: PROMPT DE INSTALACIÓN ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallBanner();
+  initPwaInstallHelper();
+});
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App instalada exitosamente');
+  deferredPrompt = null;
+  hideInstallBanner();
+  dismissInstallCard();
+  showToast('🎉 ¡StudyBuddy instalada! Búscala en tu pantalla de inicio.');
+});
+function showInstallBanner() {
+  if (document.getElementById('installBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'installBanner';
+  banner.style.cssText = `
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    color: white;
+    padding: 14px 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(79,70,229,0.35);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 9998;
+    font-family: 'Nunito', sans-serif;
+    max-width: 420px;
+    width: calc(100% - 32px);
+    animation: fadeUp 0.35s ease both;
+  `;
+  banner.innerHTML = `
+    <div style="font-size: 2rem;">📲</div>
+    <div style="flex: 1;">
+      <div style="font-weight: 800; font-size: 14px; margin-bottom: 2px;">Instalar StudyBuddy</div>
+      <div style="font-size: 12px; opacity: 0.85;">Agrégala a tu pantalla de inicio para acceso rápido</div>
+    </div>
+    <button onclick="installApp()" style="
+      background: white;
+      color: #4F46E5;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    ">Instalar</button>
+    <button onclick="hideInstallBanner()" style="
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+    ">✕</button>
+  `;
+  document.body.appendChild(banner);
+}
+function hideInstallBanner() {
+  const banner = document.getElementById('installBanner');
+  if (banner) banner.remove();
+}
+async function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log('[PWA] Resultado de instalación:', outcome);
+  deferredPrompt = null;
+  hideInstallBanner();
+  dismissInstallCard();
+}
+// Lógica de Tarjeta Inteligente Multiplataforma
+function initPwaInstallHelper() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (isStandalone) return;
+  if (sessionStorage.getItem('sb_pwa_dismissed') === 'true') return;
+  const card = document.getElementById('pwaInstallCard');
+  const instructions = document.getElementById('pwaInstallInstructions');
+  const btnInstall = document.getElementById('btnPwaInstallAction');
+  if (!card) return;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    instructions.innerHTML = `Para instalar en tu iPhone/iPad:<br>1. Presiona el botón de <strong>Compartir 📤</strong> en Safari.<br>2. Desliza hacia abajo y selecciona <strong>"Agregar a inicio" 📲</strong>.`;
+    btnInstall.style.display = 'none';
+    card.style.display = 'block';
+  } else {
+    if (deferredPrompt) {
+      instructions.innerHTML = `Instala StudyBuddy en tu celular para tener un acceso rápido y usarla a pantalla completa.`;
+      btnInstall.style.display = 'inline-block';
+      card.style.display = 'block';
+    } else {
+      instructions.innerHTML = `Para instalarla, abre el menú del navegador (los tres puntos <strong>⋮</strong> arriba o abajo) y selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla de inicio"</strong>.`;
+      btnInstall.style.display = 'none';
+      card.style.display = 'block';
+    }
+  }
+}
+function triggerPwaInstall() {
+  installApp();
+}
+function dismissInstallCard() {
+  const card = document.getElementById('pwaInstallCard');
+  if (card) card.style.display = 'none';
+  sessionStorage.setItem('sb_pwa_dismissed', 'true');
+}
+// Iniciar chequeo al cargar la página
+window.addEventListener('load', () => {
+  setTimeout(initPwaInstallHelper, 1500);
+});
 </script>
 </body>
 </html>

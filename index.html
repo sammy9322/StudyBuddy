@@ -711,6 +711,23 @@
       </button>
     </div>
 
+    <!-- TARJETA INTELIGENTE DE INSTALACIÓN PWA -->
+    <div id="pwaInstallCard" class="card animate-in" style="display: none; background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent-light) 100%); border: 1px solid #C7D2FE; margin-bottom: 1.5rem; animation-delay: 0.04s;">
+      <div style="display: flex; gap: 14px; align-items: flex-start; flex-direction: row;">
+        <div style="font-size: 2.2rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); line-height: 1;">📲</div>
+        <div style="flex: 1;">
+          <div style="font-family: 'Sora', sans-serif; font-weight: 800; font-size: 15px; margin-bottom: 4px; color: var(--text);">¡Lleva StudyBuddy en tu celular!</div>
+          <div id="pwaInstallInstructions" style="font-size: 13px; color: var(--text2); line-height: 1.4;">
+            Instala la aplicación para abrirla al instante y estudiar a pantalla completa.
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 10px;">
+            <button id="btnPwaInstallAction" class="btn btn-primary" style="width: auto; margin-top: 0; padding: 6px 14px; font-size: 13px; display: none;" onclick="triggerPwaInstall()">Instalar App</button>
+            <button class="btn" style="width: auto; margin-top: 0; padding: 6px 14px; font-size: 13px; background: var(--card-bg); color: var(--text);" onclick="dismissInstallCard()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIG CARD: GESTIÓN DE PERFILES -->
     <div class="card animate-in" style="animation-delay: 0.08s;">
       <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
@@ -1730,23 +1747,21 @@ if ('serviceWorker' in navigator) {
 
 // ── PWA: PROMPT DE INSTALACIÓN ──
 let deferredPrompt = null;
-
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
   showInstallBanner();
+  initPwaInstallHelper();
 });
-
 window.addEventListener('appinstalled', () => {
   console.log('[PWA] App instalada exitosamente');
   deferredPrompt = null;
   hideInstallBanner();
+  dismissInstallCard();
   showToast('🎉 ¡StudyBuddy instalada! Búscala en tu pantalla de inicio.');
 });
-
 function showInstallBanner() {
   if (document.getElementById('installBanner')) return;
-
   const banner = document.createElement('div');
   banner.id = 'installBanner';
   banner.style.cssText = `
@@ -1797,12 +1812,10 @@ function showInstallBanner() {
   `;
   document.body.appendChild(banner);
 }
-
 function hideInstallBanner() {
   const banner = document.getElementById('installBanner');
   if (banner) banner.remove();
 }
-
 async function installApp() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
@@ -1810,7 +1823,46 @@ async function installApp() {
   console.log('[PWA] Resultado de instalación:', outcome);
   deferredPrompt = null;
   hideInstallBanner();
+  dismissInstallCard();
 }
+// Lógica de Tarjeta Inteligente Multiplataforma
+function initPwaInstallHelper() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (isStandalone) return;
+  if (sessionStorage.getItem('sb_pwa_dismissed') === 'true') return;
+  const card = document.getElementById('pwaInstallCard');
+  const instructions = document.getElementById('pwaInstallInstructions');
+  const btnInstall = document.getElementById('btnPwaInstallAction');
+  if (!card) return;
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if (isIOS) {
+    instructions.innerHTML = `Para instalar en tu iPhone/iPad:<br>1. Presiona el botón de <strong>Compartir 📤</strong> en Safari.<br>2. Desliza hacia abajo y selecciona <strong>"Agregar a inicio" 📲</strong>.`;
+    btnInstall.style.display = 'none';
+    card.style.display = 'block';
+  } else {
+    if (deferredPrompt) {
+      instructions.innerHTML = `Instala StudyBuddy en tu celular para tener un acceso rápido y usarla a pantalla completa.`;
+      btnInstall.style.display = 'inline-block';
+      card.style.display = 'block';
+    } else {
+      instructions.innerHTML = `Para instalarla, abre el menú del navegador (los tres puntos <strong>⋮</strong> arriba o abajo) y selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla de inicio"</strong>.`;
+      btnInstall.style.display = 'none';
+      card.style.display = 'block';
+    }
+  }
+}
+function triggerPwaInstall() {
+  installApp();
+}
+function dismissInstallCard() {
+  const card = document.getElementById('pwaInstallCard');
+  if (card) card.style.display = 'none';
+  sessionStorage.setItem('sb_pwa_dismissed', 'true');
+}
+// Iniciar chequeo al cargar la página
+window.addEventListener('load', () => {
+  setTimeout(initPwaInstallHelper, 1500);
+});
 </script>
 </body>
 </html>
