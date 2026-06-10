@@ -1157,7 +1157,7 @@ function saveApiKey() {
   showToast('✅ API Key guardada');
 }
 
-// ── FILE HANDLING ──
+// ── FILE HANDLING & COMPRESSION ──
 function handleFiles(evt) { addFiles(Array.from(evt.target.files)); }
 function handleDrop(evt) {
   evt.preventDefault();
@@ -1166,21 +1166,52 @@ function handleDrop(evt) {
 }
 function handleDragOver(evt) { evt.preventDefault(); document.getElementById('uploadArea').classList.add('drag-over'); }
 function handleDragLeave() { document.getElementById('uploadArea').classList.remove('drag-over'); }
-
 function addFiles(files) {
   files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target.result;
-      const base64 = dataUrl.split(',')[1];
-      const mimeType = file.type || 'image/jpeg';
-      state.images.push({ file, dataUrl, base64, mimeType });
-      renderPreviews();
-    };
-    reader.readAsDataURL(file);
+    compressAndAddImage(file, true);
   });
 }
-
+function compressAndAddImage(fileOrDataUrl, isFile = true) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    let width = img.width;
+    let height = img.height;
+    const maxDim = 1600; // Resolución óptima para Gemini
+    if (width > maxDim || height > maxDim) {
+      if (width > height) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+    }
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, width, height);
+    // Comprimir a JPEG con 85% de calidad
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    const base64 = dataUrl.split(',')[1];
+    
+    state.images.push({
+      dataUrl,
+      base64,
+      mimeType: 'image/jpeg'
+    });
+    renderPreviews();
+  };
+  if (isFile) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(fileOrDataUrl);
+  } else {
+    img.src = fileOrDataUrl;
+  }
+}
 function renderPreviews() {
   const grid = document.getElementById('previewGrid');
   grid.innerHTML = '';
@@ -1195,12 +1226,10 @@ function renderPreviews() {
     grid.appendChild(div);
   });
 }
-
 function removeImage(i) {
   state.images.splice(i, 1);
   renderPreviews();
 }
-
 // ── CAMERA ──
 let cameraStream = null;
 async function openCamera() {
@@ -1218,10 +1247,9 @@ function capturePhoto() {
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   canvas.getContext('2d').drawImage(video, 0, 0);
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-  const base64 = dataUrl.split(',')[1];
-  state.images.push({ dataUrl, base64, mimeType: 'image/jpeg' });
-  renderPreviews();
+  const tempUrl = canvas.toDataURL('image/jpeg', 0.9);
+  
+  compressAndAddImage(tempUrl, false);
   showToast('📸 Foto tomada');
 }
 function closeCamera() {
