@@ -554,6 +554,8 @@
     .form-row { grid-template-columns: 1fr; }
     .tab { font-size: 12px; padding: 8px 4px; }
     .tab-emoji { display: none; }
+    .header-badge { display: none; }
+    .hide-mobile { display: none; }
   }
 
   /* ── ANIMATE ── */
@@ -1643,7 +1645,7 @@ function updateActiveProfileHeader() {
     if (activeProf.grade === 'primaria_baja') gradeLabel = t('profileGradeLowAge');
     else if (activeProf.grade === 'primaria_alta') gradeLabel = t('profileGradeMidAge');
     else if (activeProf.grade === 'secundaria') gradeLabel = t('profileGradeHighAge');
-    headerPill.innerHTML = `👤 ${activeProf.name} (${gradeLabel})`;
+    headerPill.innerHTML = `👤 ${activeProf.name} <span class="hide-mobile">(${gradeLabel})</span>`;
     headerPill.style.display = 'flex';
   } else {
     headerPill.style.display = 'none';
