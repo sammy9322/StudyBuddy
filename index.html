@@ -1912,7 +1912,7 @@ ${wantFlash ? t('promptFlashInstruction') : ''}`;
   setProgress(20);
   let res = null;
   let lastError = null;
-  const models = ['gemini-3.5-flash', 'gemini-2.5-flash'];
+  const models = ['gemini-1.5-flash', 'gemini-1.5-pro'];
   const maxRetriesPerModel = 3;
   try {
     for (let model of models) {
@@ -2061,7 +2061,7 @@ async function translateCurrentHistory(targetLangCode) {
 
   let res = null;
   let lastError = null;
-  const models = ['gemini-3.5-flash', 'gemini-2.5-flash'];
+  const models = ['gemini-1.5-flash', 'gemini-1.5-pro'];
   
   try {
     for (let model of models) {
@@ -2135,7 +2135,7 @@ function renderResults(data, types) {
   const titulo = data.titulo || 'Material generado';
 
   const historyEntry = state.history.find(e => e.id === state.viewingHistoryId);
-  const materialLang = historyEntry ? historyEntry.lang : state.lang;
+  const materialLang = (historyEntry && historyEntry.lang) ? historyEntry.lang : 'es';
   const targetLangCode = materialLang === 'es' ? 'en' : 'es';
   const btnTranslateLabel = targetLangCode === 'en' ? t('resultTranslateToEn') : t('resultTranslateToEs');
 
