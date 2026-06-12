@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studybuddy-v2';
+const CACHE_NAME = 'studybuddy-v3';
 
 const ASSETS_TO_CACHE = [
   './',

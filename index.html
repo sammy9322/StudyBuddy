@@ -241,42 +241,64 @@
     text-align: center; padding: 3px;
   }
 
-  /* ── CAMERA ── */
-  .camera-wrap {
-    position: relative;
-    background: #000;
-    border-radius: var(--radius);
-    overflow: hidden;
-    display: none;
-    aspect-ratio: 4/3;
-  }
-  .camera-wrap.active { display: block; }
-  #cameraVideo { width: 100%; height: 100%; object-fit: cover; }
-  .camera-controls {
-    position: absolute; bottom: 16px; left: 0; right: 0;
-    display: flex; justify-content: center; gap: 12px;
-  }
-  .btn-capture {
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    border: 4px solid white;
-    background: var(--primary);
-    cursor: pointer;
-    transition: transform 0.1s;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-  }
-  .btn-capture:active { transform: scale(0.9); }
-  .btn-cam-close {
-    background: rgba(255,255,255,0.2);
+  /* ── PHOTO BUTTON ── */
+  .btn-photo-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
-    border: 2px solid rgba(255,255,255,0.5);
-    border-radius: var(--radius-sm);
-    padding: 8px 14px;
-    font-size: 13px;
+    border: none;
+    border-radius: var(--radius);
     cursor: pointer;
     font-family: 'Nunito', sans-serif;
-    font-weight: 700;
+    transition: all 0.2s ease;
+    width: 100%;
+  }
+  .btn-photo-main:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  }
+  .btn-photo-main:active {
+    transform: scale(0.97);
+  }
+
+  /* ── PHOTO FEEDBACK ── */
+  .photo-feedback {
+    background: var(--success-light);
+    border: 2px solid var(--success);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    animation: feedbackPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes feedbackPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .photo-feedback-icon {
+    font-size: 3rem;
+    animation: bounceEmoji 0.6s ease both;
+    animation-delay: 0.2s;
+  }
+  @keyframes bounceEmoji {
+    0%   { transform: scale(0); }
+    50%  { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  .photo-feedback-msg {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--success-dark, #065F46);
+    margin: 8px 0 4px;
+  }
+  .photo-feedback-count {
+    font-size: 13px;
+    color: var(--text2);
   }
 
   /* ── BUTTONS ── */
@@ -877,17 +899,24 @@
     <div class="card">
       <div class="card-title" data-i18n="genImagesTitle"><span>📸</span> Imágenes del material</div>
 
-      <div class="btn-row" style="margin-bottom: 1rem;">
-        <button class="btn btn-outline" onclick="openCamera()" data-i18n="genBtnCamera">📷 Usar cámara</button>
-        <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()" data-i18n="genBtnUpload">🖼️ Subir imágenes</button>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem;">
+        <button class="btn-photo-main" onclick="document.getElementById('cameraInput').click()" id="btnTakePhoto">
+          <span style="font-size:2rem;">📸</span>
+          <span data-i18n="genBtnPhoto" style="font-weight:800;font-size:1rem;">Tomar Foto del Material</span>
+          <span data-i18n="genBtnPhotoSub" style="font-size:12px;opacity:0.7;">Se abre la cámara de tu celular</span>
+        </button>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleCameraCapture(event)">
+        <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()" data-i18n="genBtnUpload" style="width:100%;">🖼️ Subir imágenes desde galería</button>
       </div>
 
-      <div class="camera-wrap" id="cameraWrap">
-        <video id="cameraVideo" autoplay playsinline></video>
-        <canvas id="cameraCanvas" style="display:none;"></canvas>
-        <div class="camera-controls">
-          <button class="btn-capture" onclick="capturePhoto()" title="Tomar foto">📷</button>
-          <button class="btn-cam-close" onclick="closeCamera()" data-i18n="cameraClose">✕ Cerrar</button>
+      <!-- Feedback animado después de tomar foto -->
+      <div id="photoFeedback" class="photo-feedback" style="display:none;">
+        <div class="photo-feedback-icon" id="photoFeedbackIcon">📸</div>
+        <div class="photo-feedback-msg" id="photoFeedbackMsg" data-i18n="photoFeedbackSuccess">¡Foto tomada! 🎉</div>
+        <div class="photo-feedback-count" id="photoFeedbackCount"></div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">
+          <button class="btn btn-primary" onclick="document.getElementById('cameraInput').click()" data-i18n="photoFeedbackAnother">📸 ¡Otra página!</button>
+          <button class="btn btn-outline" onclick="hidePhotoFeedback()" data-i18n="photoFeedbackDone">✅ Listo</button>
         </div>
       </div>
 
@@ -1044,10 +1073,19 @@ const i18n = {
     genTitle: '✨ Generar material',
     genSub: 'Sube fotos del libro o cuaderno y elige qué generar.',
     genImagesTitle: '📸 Imágenes del material',
-    genBtnCamera: '📷 Usar cámara',
     genBtnUpload: '🖼️ Subir imágenes',
+    genBtnPhoto: 'Tomar Foto del Material',
+    genBtnPhotoSub: 'Se abre la cámara de tu celular',
     genDropTitle: 'Arrastra las fotos aquí',
     genDropSub: 'o haz clic para seleccionar • JPG, PNG, WEBP',
+    photoFeedbackSuccess: '¡Foto tomada! 🎉',
+    photoFeedbackAnother: '📸 ¡Otra página!',
+    photoFeedbackDone: '✅ Listo',
+    photoMsg1: '¡Excelente foto! 📸',
+    photoMsg2: '¡Genial, quedó perfecta! ✨',
+    photoMsg3: '¡Muy bien! ¡Sigue así! 🌟',
+    photoMsg4: '¡Esa página quedó clara! 👏',
+    photoCount: '{n} página(s) capturada(s)',
     genOptionsTitle: '🎛️ Opciones de generación',
     genSubjectLabel: 'Materia',
     genSubjectPlaceholder: 'Ej: Ciencias Naturales',
@@ -1123,8 +1161,6 @@ const i18n = {
     toastNoProfile: '⚠️ Primero agrega un Estudiante en Configuración',
     toastNoApiKey: '⚠️ Primero configura tu API Key en la sección de Configuración',
     toastNoImages: '⚠️ Sube al menos una imagen',
-    toastPhotoTaken: '📸 Foto tomada',
-    toastCameraError: '⚠️ No se pudo acceder a la cámara. Usa "Subir imágenes".',
     toastCopied: '📋 ¡Copiado!',
     toastCopyFail: 'No se pudo copiar',
     toastNoQuiz: 'No hay quiz disponible aún',
@@ -1136,10 +1172,6 @@ const i18n = {
     
     // ── Confirmar borrar perfil ──
     confirmDeleteProfile: '¿Estás seguro de que quieres eliminar el perfil de {name}? Se perderá todo su historial.',
-    
-    // ── Camera ──
-    cameraCaptureTitle: 'Tomar foto',
-    cameraClose: '✕ Cerrar',
     
     // ── Preview ──
     previewPage: 'Pág. {n}',
@@ -1250,10 +1282,19 @@ const i18n = {
     genTitle: '✨ Generate material',
     genSub: 'Upload photos of the textbook or notebook and choose what to generate.',
     genImagesTitle: '📸 Material images',
-    genBtnCamera: '📷 Use camera',
     genBtnUpload: '🖼️ Upload images',
+    genBtnPhoto: 'Take Photo of Material',
+    genBtnPhotoSub: 'Opens your phone camera',
     genDropTitle: 'Drag photos here',
     genDropSub: 'or click to browse • JPG, PNG, WEBP',
+    photoFeedbackSuccess: 'Photo taken! 🎉',
+    photoFeedbackAnother: '📸 Another page!',
+    photoFeedbackDone: '✅ Done',
+    photoMsg1: 'Excellent photo! 📸',
+    photoMsg2: 'Great, it looks perfect! ✨',
+    photoMsg3: 'Awesome! Keep going! 🌟',
+    photoMsg4: 'That page came out clear! 👏',
+    photoCount: '{n} page(s) captured',
     genOptionsTitle: '🎛️ Generation options',
     genSubjectLabel: 'Subject',
     genSubjectPlaceholder: 'E.g., Natural Sciences',
@@ -1329,8 +1370,6 @@ const i18n = {
     toastNoProfile: '⚠️ First add a Student in Settings',
     toastNoApiKey: '⚠️ First set up your API Key in the Settings section',
     toastNoImages: '⚠️ Upload at least one image',
-    toastPhotoTaken: '📸 Photo taken',
-    toastCameraError: '⚠️ Could not access camera. Use "Upload images".',
     toastCopied: '📋 Copied!',
     toastCopyFail: 'Could not copy',
     toastNoQuiz: 'No quiz available yet',
@@ -1342,10 +1381,6 @@ const i18n = {
     
     // ── Confirmar borrar perfil ──
     confirmDeleteProfile: 'Are you sure you want to delete {name}\'s profile? All their history will be lost.',
-    
-    // ── Camera ──
-    cameraCaptureTitle: 'Take photo',
-    cameraClose: '✕ Close',
     
     // ── Preview ──
     previewPage: 'Pg. {n}',
@@ -1834,31 +1869,47 @@ function removeImage(i) {
   state.images.splice(i, 1);
   renderPreviews();
 }
-// ── CAMERA ──
-let cameraStream = null;
-async function openCamera() {
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-    document.getElementById('cameraVideo').srcObject = cameraStream;
-    document.getElementById('cameraWrap').classList.add('active');
-  } catch {
-    showToast(t('toastCameraError'));
-  }
-}
-function capturePhoto() {
-  const video = document.getElementById('cameraVideo');
-  const canvas = document.getElementById('cameraCanvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  const tempUrl = canvas.toDataURL('image/jpeg', 0.9);
+// ── CAMERA NATIVE ──
+function handleCameraCapture(event) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
   
-  compressAndAddImage(tempUrl, false);
-  showToast(t('toastPhotoTaken'));
+  Array.from(files).forEach(file => {
+    compressAndAddImage(file, true);
+  });
+  
+  event.target.value = '';
+  
+  showPhotoFeedback();
 }
-function closeCamera() {
-  if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; }
-  document.getElementById('cameraWrap').classList.remove('active');
+
+function showPhotoFeedback() {
+  const fb = document.getElementById('photoFeedback');
+  const icon = document.getElementById('photoFeedbackIcon');
+  const msg = document.getElementById('photoFeedbackMsg');
+  const count = document.getElementById('photoFeedbackCount');
+  
+  const emojis = ['📸', '🌟', '✨', '🎉', '👏', '🤩', '💪', '🏆'];
+  const messages = [
+    t('photoMsg1'),
+    t('photoMsg2'),
+    t('photoMsg3'),
+    t('photoMsg4')
+  ];
+  
+  icon.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  msg.textContent = messages[Math.floor(Math.random() * messages.length)];
+  count.textContent = t('photoCount', { n: state.images.length });
+  
+  fb.style.display = 'none';
+  void fb.offsetWidth;
+  fb.style.display = 'block';
+  
+  fb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hidePhotoFeedback() {
+  document.getElementById('photoFeedback').style.display = 'none';
 }
 
 // ── GENERATE ──
