@@ -1075,6 +1075,7 @@ const i18n = {
     resultMapa: '🧠 Mapa conceptual',
     resultCopy: '📋 Copiar',
     resultPrint: '🖨️ Imprimir',
+    resultDefaultTitle: 'Material generado',
     resultStartQuiz: '🎯 Iniciar Quiz',
     resultQuizReady: 'El quiz tiene {n} preguntas de opción múltiple. ¡Pon a prueba lo que aprendiste!',
     resultFlashHint: '👆 Haz clic en cada tarjeta para ver la respuesta',
@@ -1280,6 +1281,7 @@ const i18n = {
     resultMapa: '🧠 Concept map',
     resultCopy: '📋 Copy',
     resultPrint: '🖨️ Print',
+    resultDefaultTitle: 'Generated material',
     resultStartQuiz: '🎯 Start Quiz',
     resultQuizReady: 'The quiz has {n} multiple-choice questions. Test what you learned!',
     resultFlashHint: '👆 Click each card to see the answer',
@@ -1982,8 +1984,6 @@ ${wantFlash ? t('promptFlashInstruction') : ''}`;
     setProgress(100);
     setGenLoading(false);
 
-    renderResults(parsed, types);
-
     const entry = {
       id: Date.now(),
       titulo: parsed.titulo || `${subject} - ${topic}` || 'Sesión de estudio',
@@ -1994,6 +1994,8 @@ ${wantFlash ? t('promptFlashInstruction') : ''}`;
     };
     state.history.unshift(entry);
     state.viewingHistoryId = entry.id;
+
+    renderResults(parsed, types);
     if (state.history.length > 30) state.history.pop();
 
     if (activeProf) {
@@ -2076,6 +2078,9 @@ async function translateCurrentHistory(targetLangCode) {
           })
         });
         if (res && res.ok) break;
+        const errData = await res.json().catch(() => ({}));
+        lastError = new Error(errData.error?.message || `Error ${res.status}`);
+        console.warn(`[translateHistory][${model}] Error ${res.status}:`, errData.error?.message);
       } catch (err) {
         lastError = err;
       }
@@ -2132,7 +2137,7 @@ function renderResults(data, types) {
   container.style.display = 'block';
   container.innerHTML = '';
 
-  const titulo = data.titulo || 'Material generado';
+  const titulo = data.titulo || t('resultDefaultTitle');
 
   const historyEntry = state.history.find(e => e.id === state.viewingHistoryId);
   const materialLang = (historyEntry && historyEntry.lang) ? historyEntry.lang : 'es';
