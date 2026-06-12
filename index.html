@@ -1965,7 +1965,7 @@ ${wantFlash ? t('promptFlashInstruction') : ''}`;
   setProgress(20);
   let res = null;
   let lastError = null;
-  const models = ['gemini-1.5-flash', 'gemini-1.5-pro'];
+  const models = ['gemini-3.5-flash', 'gemini-3.5-pro'];
   const maxRetriesPerModel = 3;
   try {
     for (let model of models) {
@@ -2114,7 +2114,7 @@ async function translateCurrentHistory(targetLangCode) {
 
   let res = null;
   let lastError = null;
-  const models = ['gemini-1.5-flash', 'gemini-1.5-pro'];
+  const models = ['gemini-3.5-flash', 'gemini-3.5-pro'];
   
   try {
     for (let model of models) {
